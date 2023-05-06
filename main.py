@@ -7,7 +7,7 @@ pygame.init()
 screen_width = 1000 
 screen_height = int(screen_width*0.6)
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('2v2 Shooter')
+pygame.display.set_caption('1v1 Shooter')
 
 #CONTROLS
 movePlayer1_right = False
@@ -15,22 +15,48 @@ movePlayer1_left = False
 movePlayer2_right = False
 movePlayer2_left = False
 
+#FRAMERATE
+clock = pygame.time.Clock()
+FPS = 120
+bg = (144, 201, 120)
+def fill_bg(): #fills screen so no trail left behind
+    screen.fill(bg)
+
 #PLAYERS
 #inheritance class from pygame.sprite.Sprite built in sprite class for the players icons
 class player(pygame.sprite.Sprite):
-    def __init__(self, img, x, y, scale, speed):
+    def __init__(self, player_type, xstart, ystart, scale, speed):
         pygame.sprite.Sprite.__init__(self)  #initializing self from the parent Sprite class 
-        self.img = img #pygame.image.load('')
-        self.x = x
-        self.y = y
-        self.scale = scale
         self.speed = speed
-        self.image = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaled image
+        self.player_type = player_type
+        self.direction = 1
+        self.flip = False
+        self.animation_list = []
+        self.frame_index = 0
+        self.update_time = pygame.time.get_ticks()
+        for i in range(0,4):
+            img = pygame.image.load(f'imgs/{self.player_type}/idle/{i}.png')
+            img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
+            self.animation_list.append(img)
+        for i in range(0,8):
+            img = pygame.image.load(f'imgs/{self.player_type}/sprint/{i}.png')
+            img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
+            self.animation_list.append(img)
+        self.image = self.animation_list[self.frame_index]
         self.rectangle = self.image.get_rect()
-        self.rectangle.center = (x,y)
+        self.rectangle.center = (xstart,ystart)
 
     def disp(self): #To display the player on screen
-        screen.blit(self.image, self.rectangle)
+        screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rectangle)
+
+    def update_animation(self):
+        animation_cooldown = 200
+        self.image = self.animation_list[self.frame_index]
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.update_time = pygame.time.get_ticks()
+            self.frame_index += 1
+            if self.frame_index >= len(self.animation_list):
+                self.frame_index = 0
 
     def move(self, move_right, move_left):
         dx = 0
@@ -38,15 +64,19 @@ class player(pygame.sprite.Sprite):
 
         if move_right:
             dx = self.speed
+            self.flip = False
+            self.direction = 1
         if move_left:
             dx = -self.speed
+            self.flip = True
+            self.direction = -1
 
-        self.rectangle.x = dx
-        self.rectangle.y = dy
+        self.rectangle.x += dx
+        self.rectangle.y += dy
         
 #Instances of the Player Class
-player_1 = player(pygame.image.load('imgs/player/idle_player1.png'), 100, 50, 0.1, 5) 
-player_2 = player(pygame.image.load('imgs/player/idle_player1.png'), 900, 50, 0.1, 5) 
+player_1 = player('player_1', 100, 50, 2.5, 5) 
+player_2 = player('player_2', 900, 50, 2.5, 5) 
 
 #While loop to run the game window
 run_game = True
@@ -54,9 +84,15 @@ while run_game:
 
     #METHODS
 
+    #Framerate 
+    clock.tick(FPS)
+    fill_bg()
+
     #displaying player
     player_1.disp()
     player_2.disp()
+    player_1.update_animation()
+    player_2.update_animation()
 
     #moving player
     player_1.move(movePlayer1_right, movePlayer1_left)
