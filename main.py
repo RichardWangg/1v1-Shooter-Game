@@ -34,15 +34,20 @@ class player(pygame.sprite.Sprite):
         self.animation_list = []
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
+        self.action = 0
+        temp_list = []
         for i in range(0,4):
             img = pygame.image.load(f'imgs/{self.player_type}/idle/{i}.png')
             img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
-            self.animation_list.append(img)
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        temp_list = []
         for i in range(0,8):
             img = pygame.image.load(f'imgs/{self.player_type}/sprint/{i}.png')
             img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
-            self.animation_list.append(img)
-        self.image = self.animation_list[self.frame_index]
+            temp_list.append(img)
+        self.animation_list.append(temp_list)
+        self.image = self.animation_list[self.action][self.frame_index]
         self.rectangle = self.image.get_rect()
         self.rectangle.center = (xstart,ystart)
 
@@ -51,12 +56,20 @@ class player(pygame.sprite.Sprite):
 
     def update_animation(self):
         animation_cooldown = 200
-        self.image = self.animation_list[self.frame_index]
+        self.image = self.animation_list[self.action][self.frame_index]
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
-            if self.frame_index >= len(self.animation_list):
+            if self.frame_index >= len(self.animation_list[self.action]):
                 self.frame_index = 0
+    
+    def update_action(self, new_action):
+        #check if new action is different
+        if new_action != self.action:
+            self.action = new_action
+            #update the animation
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
 
     def move(self, move_right, move_left):
         dx = 0
@@ -93,6 +106,16 @@ while run_game:
     player_2.disp()
     player_1.update_animation()
     player_2.update_animation()
+
+    #update player action
+    if movePlayer1_right or movePlayer1_left:
+        player_1.update_action(1) #index 1 of 2d list is the running animation
+    else:
+        player_1.update_action(0) #index 0 is idle animation
+    if movePlayer2_right or movePlayer2_left:
+        player_2.update_action(1)
+    else:
+        player_2.update_action(0)
 
     #moving player
     player_1.move(movePlayer1_right, movePlayer1_left)
