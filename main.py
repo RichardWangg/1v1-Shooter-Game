@@ -12,8 +12,10 @@ pygame.display.set_caption('1v1 Shooter')
 #CONTROLS
 movePlayer1_right = False
 movePlayer1_left = False
+
 movePlayer2_right = False
 movePlayer2_left = False
+
 
 #FRAMERATE
 clock = pygame.time.Clock()
@@ -22,13 +24,19 @@ bg = (144, 201, 120)
 def fill_bg(): #fills screen so no trail left behind
     screen.fill(bg)
 
+#GAME VARIABLES
+GRAVITY = 0.4
+
 #PLAYERS
 #inheritance class from pygame.sprite.Sprite built in sprite class for the players icons
 class player(pygame.sprite.Sprite):
     def __init__(self, player_type, xstart, ystart, scale, speed):
         pygame.sprite.Sprite.__init__(self)  #initializing self from the parent Sprite class 
+        self.alive = True
         self.speed = speed
         self.player_type = player_type
+        self.jump = False
+        self.vel_y = 0
         self.direction = 1
         self.flip = False
         self.animation_list = []
@@ -83,6 +91,11 @@ class player(pygame.sprite.Sprite):
             dx = -self.speed
             self.flip = True
             self.direction = -1
+        if self.jump == True:
+            self.vel_y = -11 #in pygame negative represents positive y-direction
+            self.jump = False
+        self.vel_y += GRAVITY
+        dy += self.vel_y
 
         self.rectangle.x += dx
         self.rectangle.y += dy
@@ -108,18 +121,17 @@ while run_game:
     player_2.update_animation()
 
     #update player action
-    if movePlayer1_right or movePlayer1_left:
-        player_1.update_action(1) #index 1 of 2d list is the running animation
-    else:
-        player_1.update_action(0) #index 0 is idle animation
-    if movePlayer2_right or movePlayer2_left:
-        player_2.update_action(1)
-    else:
-        player_2.update_action(0)
-
-    #moving player
-    player_1.move(movePlayer1_right, movePlayer1_left)
-    player_2.move(movePlayer2_right, movePlayer2_left)
+    if player.alive:
+        player_1.move(movePlayer1_right, movePlayer1_left)
+        player_2.move(movePlayer2_right, movePlayer2_left)
+        if movePlayer1_right or movePlayer1_left:
+            player_1.update_action(1) #index 1 of 2d list is the running animation
+        else:
+            player_1.update_action(0) #index 0 is idle animation
+        if movePlayer2_right or movePlayer2_left:
+            player_2.update_action(1)
+        else:
+            player_2.update_action(0)
 
     for event in pygame.event.get():
         #QUIT GAME
@@ -131,6 +143,8 @@ while run_game:
                 movePlayer1_left = True
             if event.key == pygame.K_d:
                 movePlayer1_right = True
+            if event.key == pygame.K_w and player.alive:
+                player_1.jump = True
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
@@ -143,6 +157,8 @@ while run_game:
                 movePlayer2_left = True
             if event.key == pygame.K_RIGHT:
                 movePlayer2_right = True
+            if event.key == pygame.K_UP and player.alive:
+                player_2.jump = True
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
