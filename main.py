@@ -1,4 +1,5 @@
 import pygame
+import os
 
 pygame.init()
 
@@ -48,18 +49,17 @@ class player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
         self.action = 0
-        temp_list = []
-        for i in range(0,4):
-            img = pygame.image.load(f'imgs/{self.player_type}/idle/{i}.png')
-            img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
-        temp_list = []
-        for i in range(0,8):
-            img = pygame.image.load(f'imgs/{self.player_type}/sprint/{i}.png')
-            img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
-            temp_list.append(img)
-        self.animation_list.append(temp_list)
+        animation_types = ['idle', 'sprint', 'hit', 'death']
+        #inserting all animation types into 2d array animation_list
+        for animation in animation_types:
+            temp_list = []
+            #count the number of files in folder
+            num_of_frames = len(os.listdir(f'imgs/{self.player_type}/{animation}')) 
+            for i in range(0, num_of_frames):
+                img = pygame.image.load(f'imgs/{self.player_type}/{animation}/{i}.png')
+                img = pygame.transform.scale(img,(int(img.get_width()*scale), int(img.get_height()*scale))) #scaling
+                temp_list.append(img)
+            self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         self.rectangle = self.image.get_rect()
         self.rectangle.center = (xstart, ystart)
