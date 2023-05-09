@@ -26,6 +26,8 @@ def fill_bg(): #fills screen so no trail left behind
     screen.fill(bg)
     pygame.draw.line(screen, red, (0, screen_height - 100), (screen_width, screen_height - 100))
     pygame.draw.line(screen, red, (0, 0), (screen_width, 0))
+    pygame.draw.line(screen, red, (0,screen_height), (0,0))
+    pygame.draw.line(screen, red, (screen_width, screen_height), (screen_width, 0))
 
 #GAME VARIABLES
 GRAVITY = 0.4
@@ -60,7 +62,7 @@ class player(pygame.sprite.Sprite):
         self.animation_list.append(temp_list)
         self.image = self.animation_list[self.action][self.frame_index]
         self.rectangle = self.image.get_rect()
-        self.rectangle.center = (xstart,ystart)
+        self.rectangle.center = (xstart, ystart)
 
     def disp(self): #To display the player on screen
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rectangle)
@@ -107,6 +109,10 @@ class player(pygame.sprite.Sprite):
         if self.rectangle.top + dy < 0:
             dy = 0 - self.rectangle.top
         #Side Boundaries
+        if self.rectangle.left + dx < 0:
+            dx = 0 - self.rectangle.left
+        if self.rectangle.right + dx > screen_width:
+            dx = screen_width - self.rectangle.right
 
         self.rectangle.x += dx
         self.rectangle.y += dy
