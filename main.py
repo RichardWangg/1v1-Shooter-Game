@@ -1,18 +1,11 @@
 import pygame
 from game_specifications import *
-from player_class import *
-
+from classes import *
 pygame.init()
-
-#Instances of the Player Class
-player_1 = player('player_1', 100, 50, 2.5, 5) 
-player_2 = player('player_2', 900, 50, 2.5, 5) 
 
 #While loop to run the game window
 run_game = True
 while run_game:
-
-    #METHODS
 
     #Framerate 
     clock.tick(FPS)
@@ -21,21 +14,34 @@ while run_game:
     #displaying player
     player_1.disp()
     player_2.disp()
-    player_1.update_animation()
-    player_2.update_animation()
+    player_1.update()
+    player_2.update()
 
-    #update player action
-    if player.alive:
-        player_1.move(movePlayer1_right, movePlayer1_left)
-        player_2.move(movePlayer2_right, movePlayer2_left)
-        if movePlayer1_right or movePlayer1_left:
-            player_1.update_action(1) #index 1 of 2d list is the running animation
-        else:
-            player_1.update_action(0) #index 0 is idle animation
-        if movePlayer2_right or movePlayer2_left:
-            player_2.update_action(1)
-        else:
-            player_2.update_action(0)
+    #update and display groups
+    bullet_group.update()
+    bullet_group.draw(screen)
+
+    #update player action player 1
+    #shoot
+    if shoot_player1:
+        player_1.shoot()
+    # movement
+    player_1.move(movePlayer1_right, movePlayer1_left)
+    if movePlayer1_right or movePlayer1_left:
+        player_1.update_action(1) #index 1 of 2d list is the running animation
+    else:
+        player_1.update_action(0) #index 0 is idle animation
+    
+    #update player action player 2
+    #shoot
+    if shoot_player2:
+        player_2.shoot()
+    # movement
+    player_2.move(movePlayer2_right, movePlayer2_left)
+    if movePlayer2_right or movePlayer2_left:
+        player_2.update_action(1) #index 1 of 2d list is the running animation
+    else:
+        player_2.update_action(0) #index 0 is idle animation
 
     for event in pygame.event.get():
         #QUIT GAME
@@ -43,35 +49,42 @@ while run_game:
             run_game = False
         #LOOKING FOR KEYPRESSES/RELEASES
         if event.type == pygame.KEYDOWN:
+            #player1
             if event.key == pygame.K_a:
                 movePlayer1_left = True
             if event.key == pygame.K_d:
                 movePlayer1_right = True
-            if event.key == pygame.K_w and player.alive:
+            if event.key == pygame.K_w:
                 player_1.jump = True
-
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                movePlayer1_left = False
-            if event.key == pygame.K_d:
-                movePlayer1_right = False
-        
-        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LSHIFT:
+                shoot_player1 = True
+            #player2
             if event.key == pygame.K_j:
                 movePlayer2_left = True
             if event.key == pygame.K_l:
                 movePlayer2_right = True
-            if event.key == pygame.K_i and player.alive:
+            if event.key == pygame.K_i:
                 player_2.jump = True
+            if event.key == pygame.K_SPACE:
+                shoot_player2 = True
 
         if event.type == pygame.KEYUP:
+            #player1
+            if event.key == pygame.K_a:
+                movePlayer1_left = False
+            if event.key == pygame.K_d:
+                movePlayer1_right = False
+            if event.key == pygame.K_LSHIFT:
+                shoot_player1 = False
+            #player2
             if event.key == pygame.K_j:
                 movePlayer2_left = False
             if event.key == pygame.K_l:
                 movePlayer2_right = False
+            if event.key == pygame.K_SPACE:
+                shoot_player2 = False 
 
         #menu dropdown by clicking esc
     pygame.display.update()
-
 
 pygame.quit()

@@ -6,13 +6,15 @@ screen_height = int(screen_width*0.6)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('1v1 Shooter')
 
-#CONTROLS
+#CONTROLS VARIABLES
 movePlayer1_right = False
 movePlayer1_left = False
 
 movePlayer2_right = False
 movePlayer2_left = False
 
+shoot_player1 = False
+shoot_player2 = False
 #FRAMERATE
 clock = pygame.time.Clock()
 FPS = 120
