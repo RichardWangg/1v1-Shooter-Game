@@ -11,37 +11,43 @@ while run_game:
     clock.tick(FPS)
     fill_bg()
 
-    #displaying player
-    player_1.disp()
-    player_2.disp()
-    player_1.update()
-    player_2.update()
-
     #update and display groups
     bullet_group.update()
     bullet_group.draw(screen)
 
+    #displaying player
+    player_1.disp()
+    player_1.update()
+    player_2.disp()
+    player_2.update()
+    
     #update player action player 1
     #shoot
-    if shoot_player1:
-        player_1.shoot()
-    # movement
-    player_1.move(movePlayer1_right, movePlayer1_left)
-    if movePlayer1_right or movePlayer1_left:
-        player_1.update_action(1) #index 1 of 2d list is the running animation
-    else:
-        player_1.update_action(0) #index 0 is idle animation
+    if player_1.alive:
+        if shoot_player1:
+            player_1.shoot()
+            shoot_player1 = False
+        # movement
+        player_1.move(movePlayer1_right, movePlayer1_left)
+        if movePlayer1_right or movePlayer1_left:
+            player_1.update_action(1) #index 1 of 2d list is the running animation
+        else:
+            player_1.update_action(0) #index 0 is idle animation
+        if player_1.action == 2:  # Check if player 1 is in hit animation
+            player_1.update_animation()
     
     #update player action player 2
     #shoot
-    if shoot_player2:
-        player_2.shoot()
-    # movement
-    player_2.move(movePlayer2_right, movePlayer2_left)
-    if movePlayer2_right or movePlayer2_left:
-        player_2.update_action(1) #index 1 of 2d list is the running animation
-    else:
-        player_2.update_action(0) #index 0 is idle animation
+    if player_2.alive:
+        if shoot_player2:
+            player_2.shoot()
+            shoot_player2 = False
+        # movement
+        player_2.move(movePlayer2_right, movePlayer2_left)
+        if movePlayer2_right or movePlayer2_left:
+            player_2.update_action(1) #index 1 of 2d list is the running animation
+        else:
+            player_2.update_action(0) #index 0 is idle animation
 
     for event in pygame.event.get():
         #QUIT GAME

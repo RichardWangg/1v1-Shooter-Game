@@ -20,6 +20,7 @@ class player(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
         self.action = 0
         self.shoot_cooldown = 0
+        self.health = 5
         animation_types = ['idle', 'sprint', 'hit', 'death']
         #inserting all animation types into 2d array animation_list
         for animation in animation_types:
@@ -45,7 +46,10 @@ class player(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
             if self.frame_index >= len(self.animation_list[self.action]):
-                self.frame_index = 0
+                if self.action == 3:
+                    self.frame_index = len(self.animation_list[self.action]) - 1
+                else:
+                    self.frame_index = 0
     
     def update_action(self, new_action):
         #check if new action is different
@@ -89,12 +93,20 @@ class player(pygame.sprite.Sprite):
         self.rect.y += dy
     
     def shoot(self):
-        if self.shoot_cooldown == 0:
+        if self.shoot_cooldown == 0:    
             self.shoot_cooldown = 20
-            bullet = Bullet(self.rect.centerx + (0.6*self.rect.size[0]*self.direction), self.rect.centery, self.direction)
+            bullet = Bullet(self.rect.centerx + (self.rect.size[0]*self.direction), self.rect.centery, self.direction)
             bullet_group.add(bullet)
     
+    def check_alive(self):
+        if self.health <= 0:
+            self.health = 0
+            self.speed = 0
+            self.alive = False
+            self.update_action(3)
+    
     def update(self):
+        self.check_alive()
         self.update_animation()
         #update shot cooldown
         if self.shoot_cooldown > 0:
@@ -128,9 +140,13 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(player_1, bullet_group, False):
             if player_1.alive:
                 self.kill()
+                player_1.health -= 1
+                player_1.update_action(2)
         if pygame.sprite.spritecollide(player_2, bullet_group, False):
             if player_2.alive:
                 self.kill()
+                player_2.health -= 1
+                player_2.update_action(2)
 
 #sprite group
 bullet_group = pygame.sprite.Group()
