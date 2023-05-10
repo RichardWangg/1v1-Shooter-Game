@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 from game_specifications import *
 from game_specifications import screen_width
 
@@ -115,7 +116,7 @@ class player(pygame.sprite.Sprite):
 #Instances of the Player Class
 player_1 = player('player_1', 100, 50, 2.5, 5) 
 player_2 = player('player_2', 900, 50, 2.5, 5)
-
+#----------------------------------------------------------------------------------------------------------------------------------------------------
 bullet_img = pygame.image.load('imgs/bullet/0.png').convert_alpha()
 bullet_img = pygame.transform.scale(bullet_img,(int(bullet_img.get_width()*0.035), int(bullet_img.get_height()*0.035))) #scaling
 shoot_cooldown = 200
@@ -124,7 +125,7 @@ shoot_time= pygame.time.get_ticks()
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, xstart, ystart, direction):
         pygame.sprite.Sprite.__init__(self)
-        self.speed = 10
+        self.speed = 20
         self.image = bullet_img
         self.rect = self.image.get_rect()
         self.rect.center = (xstart, ystart)
@@ -147,6 +148,36 @@ class Bullet(pygame.sprite.Sprite):
                 self.kill()
                 player_2.health -= 1
                 player_2.update_action(2)
-
 #sprite group
 bullet_group = pygame.sprite.Group()
+#---------------------------------------------------------------------------------------------------------------------------------------------
+Bandage_img = pygame.image.load('bandage/0.png').convert_alpha()
+Bandage_img = pygame.transform.scale(Bandage_img,(int(Bandage_img.get_width()*0.07), int(Bandage_img.get_height()*0.07))) #scaling
+class Bandage(pygame.sprite.Sprite):
+    def __init__(self, xstart, ystart):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = Bandage_img
+        self.rect = self.image.get_rect()
+        self.rect.center = (xstart, ystart)
+        self.bandage_clock = pygame.time.get_ticks()
+
+    def update(self):
+        if pygame.sprite.spritecollide(player_1, Bandage_group, False):
+            self.kill()
+            if player_1.health != 5 and player_1.alive:
+                player_1.health += 1
+        if pygame.sprite.spritecollide(player_2, Bandage_group, False):
+            self.kill()
+            if player_2.health != 5 and player_2.alive:
+                player_2.health += 1
+        if pygame.time.get_ticks() - self.bandage_clock > 10000:
+            self.kill()
+    
+    def spawn_bandage(self):
+        if pygame.time.get_ticks() - self.bandage_clock > 5000:
+            self.bandage_clock = pygame.time.get_ticks()
+            bandage = Bandage(random.uniform(0,screen_width), random.uniform(0,screen_height - 100))
+            Bandage_group.add(bandage)
+
+Bandage_group = pygame.sprite.Group()
+Bandage_start = Bandage(screen_width/2, screen_height/2)

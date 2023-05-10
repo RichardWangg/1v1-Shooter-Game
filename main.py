@@ -10,10 +10,20 @@ while run_game:
     #Framerate 
     clock.tick(FPS)
     fill_bg()
+    #show health bar
+    draw_text('Player 1: ', pygame.font.SysFont('Futura', 20), white, 20, 30)
+    for x in range(player_1.health):
+        screen.blit(health_bar_icon, (85 + (x*15), 27))
+    draw_text('Player 2: ', pygame.font.SysFont('Futura', 20), white, screen_width - 160, 30)
+    for x in range(player_2.health):
+        screen.blit(health_bar_icon, ((screen_width - 95) + (x*15), 27))
 
     #update and display groups
     bullet_group.update()
     bullet_group.draw(screen)
+    Bandage_start.spawn_bandage()
+    Bandage_group.update()
+    Bandage_group.draw(screen)
 
     #displaying player
     player_1.disp()
