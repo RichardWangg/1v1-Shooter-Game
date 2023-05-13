@@ -30,6 +30,10 @@ while run_game:
     player_1.update()
     player_2.disp()
     player_2.update()
+
+    #Game over condition
+    if player_1.alive == False or player_2.alive == False:
+        break
     
     #update player action player 1
     #shoot

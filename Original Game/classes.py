@@ -105,6 +105,7 @@ class player(pygame.sprite.Sprite):
             self.speed = 0
             self.alive = False
             self.update_action(3)
+        return self.alive
     
     def update(self):
         self.check_alive()
