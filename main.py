@@ -33,6 +33,10 @@ while run_game:
     player_2.update()
     player_2.action_update()
 
+    #Game over condition
+    if not player_1.alive or  not player_2.alive:
+        player_1.reset()
+        player_2.reset()
 
     for event in pygame.event.get():
         #QUIT GAME

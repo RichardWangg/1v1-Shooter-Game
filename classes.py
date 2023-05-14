@@ -2,7 +2,6 @@ import pygame
 import os
 import random
 from game_specifications import *
-from game_specifications import screen_width
 
 #PLAYERS
 #inheritance class from pygame.sprite.Sprite built in sprite class for the players icons
@@ -12,6 +11,8 @@ class player(pygame.sprite.Sprite):
         self.alive = True
         self.speed = speed
         self.player_type = player_type
+        self.xstart = xstart
+        self.ystart = ystart
         self.jump = False
         self.vel_y = 0
         self.direction = 1
@@ -20,6 +21,9 @@ class player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
         self.action = 0
+        self.move_right = False
+        self.move_left = False
+        self.shoot_var = False
         self.shoot_cooldown = 0
         self.health = 5
         animation_types = ['idle', 'sprint', 'hit', 'death']
@@ -60,15 +64,15 @@ class player(pygame.sprite.Sprite):
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
 
-    def move(self, move_right, move_left):
+    def move(self):
         dx = 0
         dy = 0 
 
-        if move_right:
+        if self.move_right == True:
             dx = self.speed
             self.flip = False
             self.direction = 1
-        if move_left:
+        if self.move_left == True:
             dx = -self.speed
             self.flip = True
             self.direction = -1
@@ -113,10 +117,36 @@ class player(pygame.sprite.Sprite):
         #update shot cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
+    
+    def reset(self):
+        self.alive = True
+        print(self.alive)
+        self.health = 5
+        self.vel_y = 0
+        self.rect.center = (self.xstart, self.ystart)
+        self.move_right = False
+        self.move_left = False
+
+    def action_update(self):
+        #update player action player 1 or player 2
+        #shoot
+        if self.alive:
+            if self.shoot_var == True:
+                self.shoot()
+                self.shoot_var = False
+            # movement
+            self.move()
+            if self.move_right == True or self.move_left == True:
+                self.update_action(1) #index 1 of 2d list is the running animation
+            else:
+                self.update_action(0) #index 0 is idle animation
+            if self.action == 2:  # Check if player 1 is in hit animation
+                self.update_animation()
+
 
 #Instances of the Player Class
-player_1 = player('player_1', 100, 50, 2.5, 5) 
-player_2 = player('player_2', 900, 50, 2.5, 5)
+player_1 = player('player_1', 100, 0, 2.5, 5) 
+player_2 = player('player_2', 900, screen_height/2, 2.5, 5)
 #----------------------------------------------------------------------------------------------------------------------------------------------------
 bullet_img = pygame.image.load('imgs/bullet/0.png').convert_alpha()
 bullet_img = pygame.transform.scale(bullet_img,(int(bullet_img.get_width()*0.035), int(bullet_img.get_height()*0.035))) #scaling
